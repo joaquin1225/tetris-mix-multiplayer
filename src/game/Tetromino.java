@@ -2,9 +2,8 @@ package game;
 
 public class Tetromino {
     private final TetrominoType type;
-    private final boolean[][] shape;
-    private final double pivotRow;
-    private final double pivotCol;
+    private final boolean[][][] rotations;
+    private int rotationIndex;
     private int row;
     private int col;
 
@@ -12,9 +11,17 @@ public class Tetromino {
         this.type = type;
         this.row = row;
         this.col = col;
-        this.shape = createShape(type);
-        this.pivotRow = createPivotRow(type);
-        this.pivotCol = createPivotCol(type);
+        this.rotations = createRotations(type);
+        this.rotationIndex = 0;
+    }
+
+    private boolean[][][] createRotations(TetrominoType type) {
+        boolean[][][] rotations = new boolean[4][][];
+        rotations[0] = createShape(type);
+        rotations[1] = rotateClockwise(rotations[0]);
+        rotations[2] = rotateClockwise(rotations[1]);
+        rotations[3] = rotateClockwise(rotations[2]);
+        return rotations;
     }
 
     private boolean[][] createShape(TetrominoType type) {
@@ -31,7 +38,8 @@ public class Tetromino {
             case T:
                 return new boolean[][]{
                         {false, true, false},
-                        {true, true, true}
+                        {true, true, true},
+                        {false, false, false}
                 };
             case SMALL_I:
                 return new boolean[][]{
@@ -60,46 +68,25 @@ public class Tetromino {
         }
     }
 
-    private double createPivotRow(TetrominoType type) {
-        switch (type) {
-            case SMALL_SQUARE:
-                return 0.0;
-            case LARGE_SQUARE:
-                return 0.5;
-            case T:
-                return 1.0;
-            case SMALL_I:
-                return 0.5;
-            case LARGE_I:
-                return 1.0;
-            case L:
-                return 0.5;
-            case Y:
-                return 1.0;
-            default:
-                throw new IllegalArgumentException("Tipo de pieza desconocida.");
+    private boolean[][] rotateClockwise(boolean[][] shape) {
+        int size = shape.length;
+        boolean[][] rotated = new boolean[size][size];
+
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++) {
+                rotated[row][column] = shape[size - 1 - column][row];
+            }
         }
+
+        return rotated;
     }
 
-    private double createPivotCol(TetrominoType type) {
-        switch (type) {
-            case SMALL_SQUARE:
-                return 0.0;
-            case LARGE_SQUARE:
-                return 0.5;
-            case T:
-                return 1.0;
-            case SMALL_I:
-                return 0.5;
-            case LARGE_I:
-                return 1.0;
-            case L:
-                return 0.5;
-            case Y:
-                return 1.0;
-            default:
-                throw new IllegalArgumentException("Tipo de pieza desconocida.");
-        }
+    public void rotateClockwise() {
+        rotationIndex = (rotationIndex + 1) % 4;
+    }
+
+    public void rotateCounterClockwise() {
+        rotationIndex = (rotationIndex + 3) % 4;
     }
 
     public TetrominoType getType() {
@@ -107,7 +94,11 @@ public class Tetromino {
     }
 
     public boolean[][] getShape() {
-        return shape;
+        return rotations[rotationIndex];
+    }
+
+    public int getRotationIndex() {
+        return rotationIndex;
     }
 
     public int getRow() {
@@ -116,14 +107,6 @@ public class Tetromino {
 
     public int getColumn() {
         return col;
-    }
-
-    public double getPivotRow() {
-        return pivotRow;
-    }
-
-    public double getPivotColumn() {
-        return pivotCol;
     }
 
     public void setPosition(int row, int col) {
