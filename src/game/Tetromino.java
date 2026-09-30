@@ -97,6 +97,10 @@ public class Tetromino {
         return rotations[rotationIndex];
     }
 
+    public boolean[][] getShape(int rotationIndex) {
+        return rotations[rotationIndex];
+    }
+
     public int getRotationIndex() {
         return rotationIndex;
     }
@@ -112,5 +116,12 @@ public class Tetromino {
     public void setPosition(int row, int col) {
         this.row = row;
         this.col = col;
+    }
+
+    public void setRotationIndex(int rotationIndex) {
+        if (rotationIndex < 0 || rotationIndex >= 4) {
+            throw new IllegalArgumentException("Indice de rotacion invalido.");
+        }
+        this.rotationIndex = rotationIndex;
     }
 }

@@ -84,12 +84,12 @@ public class GameManager {
                     return false;
                 }
 
-                // 2. Colisión con una pieza ya fijada.
+                // 2. Colision con una pieza ya fijada.
                 if (!board.isEmpty(boardRow, boardColumn)) {
                     return false;
                 }
 
-                // 3. Colisión con otra pieza activa.
+                // 3. Colision con otra pieza activa.
                 if (isOccupiedByAnotherPlayer(boardRow, boardColumn, player)) {
                     return false;
                 }
@@ -186,9 +186,124 @@ public class GameManager {
 
     public synchronized void setPlayerTetromino(Player player, Tetromino tetromino) {
         if (!players.contains(player)) {
-            throw new IllegalArgumentException("El jugador no pertenece al juego.");
+            throw new IllegalArgumentException("Player no pertenece al juego.");
         }
 
         player.setCurrentTetromino(tetromino);
+    }
+
+    public synchronized boolean moveDown(Player player) {
+        Tetromino tetromino = player.getCurrentTetromino();
+
+        if (tetromino == null) {
+            return false;
+        }
+
+        int newRow = tetromino.getRow() + 1;
+
+        if (!canPlaceTetromino(
+                tetromino,
+                newRow,
+                tetromino.getColumn(),
+                tetromino.getShape(),
+                player
+        )) {
+            return false;
+        }
+
+        tetromino.setPosition(newRow, tetromino.getColumn());
+
+        return true;
+    }
+
+    public synchronized boolean rotateClockwise(Player player) {
+        Tetromino tetromino = player.getCurrentTetromino();
+
+        if (tetromino == null) {
+            return false;
+        }
+
+        int currentRotation = tetromino.getRotationIndex();
+        int newRotation = (currentRotation + 1) % 4;
+        boolean[][] newShape = tetromino.getShape(newRotation);
+
+        if (!canPlaceTetromino(
+                tetromino,
+                tetromino.getRow(),
+                tetromino.getColumn(),
+                newShape,
+                player
+        )) {
+            return false;
+        }
+
+        tetromino.setRotationIndex(newRotation);
+
+        return true;
+    }
+
+    public synchronized boolean rotateCounterClockwise(Player player) {
+        Tetromino tetromino = player.getCurrentTetromino();
+
+        if (tetromino == null) {
+            return false;
+        }
+
+        int currentRotation = tetromino.getRotationIndex();
+        int newRotation = (currentRotation + 3) % 4; // Rotacion inversa
+        boolean[][] newShape = tetromino.getShape(newRotation);
+
+        if (!canPlaceTetromino(
+                tetromino,
+                tetromino.getRow(),
+                tetromino.getColumn(),
+                newShape,
+                player
+        )) {
+            return false;
+        }
+
+        tetromino.setRotationIndex(newRotation);
+
+        return true;
+    }
+
+    public synchronized boolean lockPiece(Player player) {
+        Tetromino tetromino = player.getCurrentTetromino();
+
+        if (tetromino == null) {
+            return false;
+        }
+
+        boolean[][] shape = tetromino.getShape();
+        int row = tetromino.getRow();
+        int col = tetromino.getColumn();
+
+        if (!canPlaceTetromino(
+                tetromino,
+                row,
+                col,
+                shape,
+                player
+        )) {
+            return false;
+        }
+
+        for (int localRow = 0; localRow < shape.length; localRow++) {
+            for (int localCol = 0; localCol < shape[localRow].length; localCol++) {
+                if (!shape[localRow][localCol]) {
+                    continue;
+                }
+
+                int boardRow = row + localRow;
+                int boardCol = col + localCol;
+
+                board.setCell(boardRow, boardCol, player.getId().charAt(0));
+            }
+        }
+
+        player.setCurrentTetromino(null);
+
+        return true;
     }
 }
