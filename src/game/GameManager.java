@@ -5,9 +5,11 @@ import java.util.List;
 
 public class GameManager {
     private final List<Player> players;
+    private final Board board;
 
-    public GameManager() {
+    public GameManager(int rows, int columns) {
         players = new ArrayList<>();
+        board = new Board(rows, columns);
     }
 
     public synchronized Player addPlayer() {
@@ -45,5 +47,9 @@ public class GameManager {
 
     public synchronized int getPlayerCount() {
         return players.size();
+    }
+
+    public Board getBoard() {
+        return board;
     }
 }
