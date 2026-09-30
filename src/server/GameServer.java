@@ -1,14 +1,18 @@
 package server;
 
+import game.GameManager;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class GameServer {
     private final int port;
+    private final GameManager gameManager;
 
     public GameServer(int port) {
         this.port = port;
+        this.gameManager = new GameManager();
     }
 
     public void start() {
@@ -20,7 +24,7 @@ public class GameServer {
                 Socket client = serverSocket.accept();
                 System.out.println("Jugador conectado: " + client.getInetAddress().getHostAddress());
 
-                ClientHandler clientHandler = new ClientHandler(client);
+                ClientHandler clientHandler = new ClientHandler(client, gameManager);
                 Thread clientThread = new Thread(clientHandler);
                 clientThread.start();
             }
