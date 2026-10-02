@@ -457,13 +457,19 @@ public class GameManager {
         }
     }
 
-    public synchronized boolean lockAndSpawn(Player player) {
+    public synchronized LockAndSpawnResult lockAndSpawn(Player player) {
         boolean locked = lockPiece(player);
 
         if (!locked) {
-            return false;
+            return LockAndSpawnResult.LOCK_FAILED;
         }
 
-        return spawnRandomTetromino(player);
+        boolean spawned = spawnRandomTetromino(player);
+
+        if (!spawned) {
+            return LockAndSpawnResult.LOCKED_NO_SPAWN;
+        }
+
+        return LockAndSpawnResult.LOCK_AND_SPAWNED;
     }
 }

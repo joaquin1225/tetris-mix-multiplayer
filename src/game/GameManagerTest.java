@@ -9,6 +9,7 @@ public class GameManagerTest {
     private static Tetromino tetromino;
     private static Board board;
     private static boolean result;
+    private static LockAndSpawnResult lockAndSpawnResult;
 
     public static void main(String[] args) {
 
@@ -1486,7 +1487,14 @@ public class GameManagerTest {
         pieceA = new Tetromino(TetrominoType.SMALL_SQUARE, 8, 4);
         gameManager.setPlayerTetromino(playerA, pieceA);
 
-        boolean result = gameManager.lockAndSpawn(playerA);
+
+        lockAndSpawnResult = gameManager.lockAndSpawn(playerA);
+
+        if (lockAndSpawnResult != LockAndSpawnResult.LOCK_AND_SPAWNED) {
+            throw new AssertionError(
+                    "El bloqueo y el spawn debían completarse."
+            );
+        }
 
         // El bloqueo debe haber sido exitoso y debe haberse generado otra pieza.
         assert result : "LockAndSpawn deberia devolver true.";
@@ -1529,9 +1537,9 @@ public class GameManagerTest {
                 tetromino
         );
 
-        result = gameManager.lockAndSpawn(playerA);
+        lockAndSpawnResult = gameManager.lockAndSpawn(playerA);
 
-        if (!result) {
+        if (lockAndSpawnResult != LockAndSpawnResult.LOCK_AND_SPAWNED) {
             throw new AssertionError(
                     "La pieza debía bloquearse "
                             + "y debía generarse una nueva pieza."
@@ -1579,9 +1587,9 @@ public class GameManagerTest {
 
         gameManager.setPlayerTetromino(playerA, pieceA);
 
-        result = gameManager.lockAndSpawn(playerA);
+        lockAndSpawnResult = gameManager.lockAndSpawn(playerA);
 
-        if (!result) {
+        if (lockAndSpawnResult != LockAndSpawnResult.LOCK_AND_SPAWNED) {
             throw new AssertionError(
                     "El bloqueo y el spawn debían completarse."
             );
@@ -1630,9 +1638,9 @@ public class GameManagerTest {
 
         gameManager.setPlayerTetromino(playerA, pieceA);
 
-        result = gameManager.lockAndSpawn(playerA);
+        lockAndSpawnResult = gameManager.lockAndSpawn(playerA);
 
-        if (!result) {
+        if (lockAndSpawnResult != LockAndSpawnResult.LOCK_AND_SPAWNED) {
             throw new AssertionError(
                     "El bloqueo, la limpieza y el spawn debían completarse."
             );
@@ -1701,11 +1709,12 @@ public class GameManagerTest {
 
         gameManager.setPlayerTetromino(playerA, pieceA);
 
-        result = gameManager.lockAndSpawn(playerA);
+        lockAndSpawnResult = gameManager.lockAndSpawn(playerA);
 
-        if (result) {
+        if (lockAndSpawnResult != LockAndSpawnResult.LOCKED_NO_SPAWN) {
             throw new AssertionError(
-                    "No debía existir un spawn posterior válido."
+                    "El bloqueo debía funcionar, pero no debía existir "
+                            + "un spawn posterior válido."
             );
         }
 
