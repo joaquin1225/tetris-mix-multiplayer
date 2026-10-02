@@ -456,4 +456,14 @@ public class GameManager {
             this.column = column;
         }
     }
+
+    public synchronized boolean lockAndSpawn(Player player) {
+        boolean locked = lockPiece(player);
+
+        if (!locked) {
+            return false;
+        }
+
+        return spawnRandomTetromino(player);
+    }
 }

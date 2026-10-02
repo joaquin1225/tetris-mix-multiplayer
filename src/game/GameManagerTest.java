@@ -43,6 +43,11 @@ public class GameManagerTest {
         test29();
         test30();
         test31();
+        test32();
+        test33();
+        test34();
+        test35();
+        test36();
     }
 
     private static void test1() {
@@ -148,7 +153,6 @@ public class GameManagerTest {
         );
     }
 
-
     private static void test5() {
         System.out.println();
         System.out.println("=== TEST 5: false vs true ===");
@@ -208,7 +212,6 @@ public class GameManagerTest {
         );
     }
 
-
     private static void test6() {
         System.out.println();
         System.out.println("=== TEST 6: Movimiento hacia abajo ===");
@@ -249,7 +252,6 @@ public class GameManagerTest {
                         fallingPiece.getRow()
         );
     }
-
 
     private static void test7() {
         System.out.println();
@@ -292,7 +294,6 @@ public class GameManagerTest {
         );
     }
 
-
     private static void test8() {
         System.out.println();
         System.out.println("=== TEST 8: Rotación horaria ===");
@@ -331,7 +332,6 @@ public class GameManagerTest {
                         tetromino.getRotationIndex()
         );
     }
-
 
     private static void test9() {
         System.out.println();
@@ -385,7 +385,6 @@ public class GameManagerTest {
         );
     }
 
-
     private static void test10() {
         System.out.println();
         System.out.println("=== TEST 10: Rotación bloqueada por otro jugador ===");
@@ -438,7 +437,6 @@ public class GameManagerTest {
         );
     }
 
-
     private static void test11() {
         System.out.println();
         System.out.println("=== TEST 11: Rotación bloqueada por borde ===");
@@ -477,7 +475,6 @@ public class GameManagerTest {
                         tetromino.getRotationIndex()
         );
     }
-
 
     private static void test12() {
         System.out.println();
@@ -522,7 +519,6 @@ public class GameManagerTest {
 
         gameManager.getBoard().print();
     }
-
 
     private static void test13() {
         System.out.println();
@@ -575,7 +571,6 @@ public class GameManagerTest {
         );
     }
 
-
     private static void test14() {
         System.out.println();
         System.out.println("=== TEST 14: Detectar línea completa ===");
@@ -600,7 +595,6 @@ public class GameManagerTest {
                         board.isRowFull(3)
         );
     }
-
 
     private static void test15() {
         System.out.println();
@@ -630,7 +624,6 @@ public class GameManagerTest {
 
         board.print();
     }
-
 
     private static void test16() {
         System.out.println();
@@ -667,7 +660,6 @@ public class GameManagerTest {
         board.print();
     }
 
-
     private static void test17() {
         System.out.println();
         System.out.println("=== TEST 17: clearFullRows() ===");
@@ -702,7 +694,6 @@ public class GameManagerTest {
         board.print();
     }
 
-
     private static void test18() {
         System.out.println();
         System.out.println("=== TEST 18: Spawn aleatorio válido ===");
@@ -729,7 +720,6 @@ public class GameManagerTest {
         System.out.println("Fila de origen: " + spawnedPiece.getRow());
         System.out.println("Columna de origen: " + spawnedPiece.getColumn());
     }
-
 
     private static void test19() {
         System.out.println();
@@ -781,7 +771,6 @@ public class GameManagerTest {
         System.out.println("Spawn restringido: OK");
     }
 
-
     private static void test20() {
         System.out.println();
         System.out.println("=== TEST 20: Tablero completamente ocupado ===");
@@ -818,7 +807,6 @@ public class GameManagerTest {
         System.out.println("Tablero lleno: OK");
     }
 
-
     private static void test21() {
         System.out.println();
         System.out.println("=== TEST 21: Fila superior bloqueada ===");
@@ -852,7 +840,6 @@ public class GameManagerTest {
 
         System.out.println("Fila superior bloqueada: OK");
     }
-
 
     private static void test22() {
         System.out.println();
@@ -890,7 +877,6 @@ public class GameManagerTest {
         System.out.println("Protección contra doble spawn: OK");
     }
 
-
     private static void test23() {
         System.out.println();
         System.out.println("=== TEST 23: Múltiples spawns aleatorios ===");
@@ -913,7 +899,6 @@ public class GameManagerTest {
 
         System.out.println("100 spawns válidos: OK");
     }
-
 
     private static void test24() {
         System.out.println();
@@ -975,7 +960,6 @@ public class GameManagerTest {
                 + ")");
     }
 
-
     private static void test25() {
 
         System.out.println();
@@ -1020,7 +1004,6 @@ public class GameManagerTest {
 
         System.out.println("Bloqueo sin líneas: OK");
     }
-
 
     private static void test26() {
 
@@ -1080,7 +1063,6 @@ public class GameManagerTest {
 
         System.out.println("Una línea: OK");
     }
-
 
     private static void test27() {
 
@@ -1144,7 +1126,6 @@ public class GameManagerTest {
 
         System.out.println("Dos líneas: OK");
     }
-
 
     private static void test28() {
 
@@ -1494,6 +1475,260 @@ public class GameManagerTest {
         );
     }
 
+    private static void test32() {
+        System.out.println();
+        System.out.println("=== TEST 32: Lock + Spawn de nueva pieza ===");
+
+        gameManager = new GameManager(10, 10);
+        playerA = gameManager.addPlayer();
+
+        // Pieza inicial que será bloqueada.
+        pieceA = new Tetromino(TetrominoType.SMALL_SQUARE, 8, 4);
+        gameManager.setPlayerTetromino(playerA, pieceA);
+
+        boolean result = gameManager.lockAndSpawn(playerA);
+
+        // El bloqueo debe haber sido exitoso y debe haberse generado otra pieza.
+        assert result : "LockAndSpawn deberia devolver true.";
+
+        // La pieza anterior debe haber quedado fija en el tablero.
+        assert gameManager.getBoard().getCell(8, 4) == 'a'
+                : "La pieza bloqueada deberia estar en el tablero.";
+
+        // No se limpiaron lineas, por lo que el score debe seguir en 0.
+        assert playerA.getScore() == 0
+                : "El score deberia seguir en 0.";
+
+        // Debe existir una nueva pieza activa.
+        assert playerA.getCurrentTetromino() != null
+                : "El jugador deberia tener una nueva pieza.";
+
+        // La nueva pieza no debe ser exactamente la pieza anterior.
+        assert playerA.getCurrentTetromino() != pieceA
+                : "La nueva pieza deberia ser una instancia diferente.";
+
+        System.out.println("TEST 32 PASO");
+    }
+
+    private static void test33() {
+
+        System.out.println();
+        System.out.println("=== TEST 33: Bloqueo y spawn de nueva pieza ===");
+
+        gameManager = new GameManager(10, 10);
+        playerA = gameManager.addPlayer();
+
+        tetromino = new Tetromino(
+                TetrominoType.SMALL_SQUARE,
+                8,
+                0
+        );
+
+        gameManager.setPlayerTetromino(
+                playerA,
+                tetromino
+        );
+
+        result = gameManager.lockAndSpawn(playerA);
+
+        if (!result) {
+            throw new AssertionError(
+                    "La pieza debía bloquearse "
+                            + "y debía generarse una nueva pieza."
+            );
+        }
+
+        board = gameManager.getBoard();
+
+        if (board.getCell(8, 0) != 'a') {
+            throw new AssertionError(
+                    "La pieza bloqueada debía quedar "
+                            + "en el tablero."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() == null) {
+            throw new AssertionError(
+                    "El jugador debía recibir "
+                            + "una nueva pieza."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() == tetromino) {
+            throw new AssertionError(
+                    "La nueva pieza debía ser diferente "
+                            + "de la pieza bloqueada."
+            );
+        }
+
+        System.out.println("Bloqueo y spawn de nueva pieza: OK");
+    }
+
+    private static void test34() {
+        System.out.println();
+        System.out.println("=== TEST 34: Ciclo sin líneas ===");
+
+        gameManager = new GameManager(10, 10);
+        playerA = gameManager.addPlayer();
+
+        pieceA = new Tetromino(
+                TetrominoType.SMALL_SQUARE,
+                8,
+                4
+        );
+
+        gameManager.setPlayerTetromino(playerA, pieceA);
+
+        result = gameManager.lockAndSpawn(playerA);
+
+        if (!result) {
+            throw new AssertionError(
+                    "El bloqueo y el spawn debían completarse."
+            );
+        }
+
+        if (gameManager.getBoard().getCell(8, 4) != 'a') {
+            throw new AssertionError(
+                    "La pieza debía quedar fijada en el tablero."
+            );
+        }
+
+        if (playerA.getScore() != 0) {
+            throw new AssertionError(
+                    "No debían asignarse puntos sin eliminar líneas."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() == null) {
+            throw new AssertionError(
+                    "Debía generarse una nueva pieza activa."
+            );
+        }
+
+        assertValidSpawn(gameManager, playerA);
+
+        System.out.println("Ciclo sin líneas: OK");
+    }
+
+    private static void test35() {
+        System.out.println();
+        System.out.println("=== TEST 35: Ciclo con una línea ===");
+
+        gameManager = new GameManager(4, 4);
+        playerA = gameManager.addPlayer();
+        board = gameManager.getBoard();
+
+        for (int column = 1; column < board.getColumns(); column++) {
+            board.setCell(3, column, 'x');
+        }
+
+        pieceA = new Tetromino(
+                TetrominoType.SMALL_SQUARE,
+                3,
+                0
+        );
+
+        gameManager.setPlayerTetromino(playerA, pieceA);
+
+        result = gameManager.lockAndSpawn(playerA);
+
+        if (!result) {
+            throw new AssertionError(
+                    "El bloqueo, la limpieza y el spawn debían completarse."
+            );
+        }
+
+        if (playerA.getScore() != 10) {
+            throw new AssertionError(
+                    "Una línea debía otorgar 10 puntos. "
+                            + "Puntos obtenidos: "
+                            + playerA.getScore()
+            );
+        }
+
+        if (board.getCell(3, 0) != '.') {
+            throw new AssertionError(
+                    "La fila completa debía eliminarse."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() == null) {
+            throw new AssertionError(
+                    "Debía generarse una nueva pieza activa."
+            );
+        }
+
+        assertValidSpawn(gameManager, playerA);
+
+        System.out.println("Ciclo con una línea: OK");
+    }
+
+    private static void test36() {
+        System.out.println();
+        System.out.println("=== TEST 36: Bloqueo sin spawn posterior ===");
+
+        gameManager = new GameManager(2, 4);
+        playerA = gameManager.addPlayer();
+        playerB = gameManager.addPlayer();
+        Player playerC = gameManager.addPlayer();
+        Player playerD = gameManager.addPlayer();
+        Player playerE = gameManager.addPlayer();
+
+        board = gameManager.getBoard();
+
+        gameManager.setPlayerTetromino(
+                playerB,
+                new Tetromino(TetrominoType.SMALL_SQUARE, 0, 0)
+        );
+        gameManager.setPlayerTetromino(
+                playerC,
+                new Tetromino(TetrominoType.SMALL_SQUARE, 0, 1)
+        );
+        gameManager.setPlayerTetromino(
+                playerD,
+                new Tetromino(TetrominoType.SMALL_SQUARE, 0, 2)
+        );
+        gameManager.setPlayerTetromino(
+                playerE,
+                new Tetromino(TetrominoType.SMALL_SQUARE, 0, 3)
+        );
+
+        pieceA = new Tetromino(
+                TetrominoType.SMALL_SQUARE,
+                1,
+                0
+        );
+
+        gameManager.setPlayerTetromino(playerA, pieceA);
+
+        result = gameManager.lockAndSpawn(playerA);
+
+        if (result) {
+            throw new AssertionError(
+                    "No debía existir un spawn posterior válido."
+            );
+        }
+
+        if (board.getCell(1, 0) != 'a') {
+            throw new AssertionError(
+                    "La pieza debía quedar fijada aunque no hubiera spawn."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() != null) {
+            throw new AssertionError(
+                    "El jugador debía quedar sin pieza activa."
+            );
+        }
+
+        if (playerA.getScore() != 0) {
+            throw new AssertionError(
+                    "No debían asignarse puntos."
+            );
+        }
+
+        System.out.println("Bloqueo sin spawn posterior: OK");
+    }
 
     private static void assertValidSpawn(
             GameManager manager,
