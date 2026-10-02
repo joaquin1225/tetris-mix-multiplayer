@@ -165,6 +165,10 @@ public class GameManager {
     }
 
     public synchronized boolean moveLeft(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
@@ -189,6 +193,10 @@ public class GameManager {
     }
 
     public synchronized boolean moveRight(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
@@ -221,6 +229,10 @@ public class GameManager {
     }
 
     public synchronized boolean moveDown(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
@@ -245,6 +257,10 @@ public class GameManager {
     }
 
     public synchronized boolean rotateClockwise(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
@@ -271,6 +287,10 @@ public class GameManager {
     }
 
     public synchronized boolean rotateCounterClockwise(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
@@ -297,6 +317,10 @@ public class GameManager {
     }
 
     public synchronized boolean lockPiece(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         if (player == null) {
             throw new IllegalArgumentException("El player no puede ser null.");
         }
@@ -373,6 +397,10 @@ public class GameManager {
     }
 
     public synchronized boolean spawnRandomTetromino(Player player) {
+        if (gameState != GameState.RUNNING) {
+            return false;
+        }
+
         if (player == null) {
             throw new IllegalArgumentException("Player no puede ser null.");
         }
