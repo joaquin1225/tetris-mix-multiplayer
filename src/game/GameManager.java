@@ -2,14 +2,18 @@ package game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameManager {
+    private static final int BASE_POINTS = 10;
     private final List<Player> players;
     private final Board board;
+    private final Random random;
 
     public GameManager(int rows, int columns) {
         players = new ArrayList<>();
         board = new Board(rows, columns);
+        random = new Random();
     }
 
     public synchronized Player addPlayer() {
@@ -269,6 +273,14 @@ public class GameManager {
     }
 
     public synchronized boolean lockPiece(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException("El player no puede ser null.");
+        }
+
+        if (!players.contains(player)) {
+            throw new IllegalArgumentException("Player no pertenece al juego.");
+        }
+
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
@@ -303,7 +315,145 @@ public class GameManager {
         }
 
         player.setCurrentTetromino(null);
+        int clearedRows = clearFullRows();
+        int points = calculateLineClearPoints(clearedRows);
+        player.addScore(points);
 
         return true;
+    }
+
+    public synchronized int clearFullRows() {
+        int clearedRows = 0;
+
+        for (int row = board.getRows() - 1; row >= 0; row--) {
+            if (board.isRowFull(row)) {
+                board.clearRow(row);
+                clearedRows++;
+                row++;
+            }
+        }
+        return clearedRows;
+    }
+
+    private int calculateLineClearPoints(int clearedRows) {
+        switch (clearedRows) {
+            case 1:
+                return BASE_POINTS;
+            case 2:
+                return (int) (BASE_POINTS * 2.5);
+            case 3:
+                return BASE_POINTS * 4;
+            default:
+                return 0;
+        }
+    }
+
+    public synchronized boolean spawnRandomTetromino(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException("Player no puede ser null.");
+        }
+
+        if (!players.contains(player)) {
+            throw new IllegalArgumentException("Player no pertenece al juego.");
+        }
+
+        if (player.getCurrentTetromino() != null) {
+            return false;
+        }
+
+        List<SpawnOption> validOptions = new ArrayList<>();
+
+        for (TetrominoType type : TetrominoType.values()) {
+            for (int rotationIndex = 0; rotationIndex < 4; rotationIndex++) {
+                Tetromino candidate = new Tetromino(type, 0, 0);
+                candidate.setRotationIndex(rotationIndex);
+
+                boolean[][] shape = candidate.getShape();
+
+                int firstOccupiedRow = findFirstOccupiedRow(shape);
+                int firstOccupiedColumn = findFirstOccupiedColumn(shape);
+
+                // La primera celda ocupada de la pieza quedará en la fila 0.
+                int row = -firstOccupiedRow;
+
+                // leftmostColumn representa la columna de la primera
+                // celda ocupada de la pieza, no el origen de su matriz.
+                for (int leftmostColumn = 0; leftmostColumn < board.getColumns(); leftmostColumn++) {
+                    int column = leftmostColumn - firstOccupiedColumn;
+
+                    if (canPlaceTetromino(
+                            candidate,
+                            row,
+                            column,
+                            shape,
+                            player
+                    )) {
+                        validOptions.add(new SpawnOption(type, rotationIndex, row, column));
+                    }
+                }
+            }
+        }
+
+        if (validOptions.isEmpty()) {
+            return false;
+        }
+
+        SpawnOption selectedOption = validOptions.get(random.nextInt(validOptions.size()));
+        Tetromino spawnedTetromino = new Tetromino(selectedOption.type, selectedOption.row, selectedOption.column);
+
+        spawnedTetromino.setRotationIndex(selectedOption.rotationIndex);
+        player.setCurrentTetromino(spawnedTetromino);
+
+        return true;
+    }
+
+    private int findFirstOccupiedRow(boolean[][] shape) {
+        for (int row = 0; row < shape.length; row++) {
+            for (int column = 0; column < shape[row].length; column++) {
+                if (shape[row][column]) {
+                    return row;
+                }
+            }
+        }
+
+        throw new IllegalArgumentException("La pieza no contiene celdas ocupadas.");
+    }
+
+    private int findFirstOccupiedColumn(boolean[][] shape) {
+        for (int column = 0; column < shape[0].length; column++) {
+            for (int row = 0; row < shape.length; row++) {
+                if (shape[row][column]) {
+                    return column;
+                }
+            }
+        }
+
+        throw new IllegalArgumentException("La pieza no contiene celdas ocupadas.");
+    }
+
+    private boolean hasOccupiedCellInTopRow(Tetromino tetromino) {
+        boolean[][] shape = tetromino.getShape();
+
+        for (int column = 0; column < shape[0].length; column++) {
+            if (shape[0][column]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static class SpawnOption {
+        private final TetrominoType type;
+        private final int rotationIndex;
+        private final int row;
+        private final int column;
+
+        private SpawnOption(TetrominoType type, int rotationIndex, int row, int column) {
+            this.type = type;
+            this.rotationIndex = rotationIndex;
+            this.row = row;
+            this.column = column;
+        }
     }
 }

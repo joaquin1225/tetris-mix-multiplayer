@@ -71,4 +71,33 @@ public class Board {
             throw new IllegalArgumentException("Posicion fuera del tablero: (" + row + ", " + col + ")");
         }
     }
+
+    public synchronized boolean isRowFull(int row) {
+        if (row < 0 || row >= rows) {
+            throw new IllegalArgumentException("Fila fuera del tablero: " + row);
+        }
+
+        for (int col = 0; col < columns; col++) {
+            if (cells[row][col] == '.') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public synchronized void clearRow(int row) {
+        if (row < 0 || row >= rows) {
+            throw new IllegalArgumentException("Fila fuera del tablero: " + row);
+        }
+
+        for (int currentRow = row; currentRow > 0; currentRow--) {
+            for (int col = 0; col < columns; col++) {
+                cells[currentRow][col] = cells[currentRow - 1][col];
+            }
+        }
+
+        for (int col = 0; col < columns; col++) {
+            cells[0][col] = '.';
+        }
+    }
 }
