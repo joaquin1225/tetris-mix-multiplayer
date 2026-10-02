@@ -9,11 +9,13 @@ public class GameManager {
     private final List<Player> players;
     private final Board board;
     private final Random random;
+    private GameState gameState;
 
     public GameManager(int rows, int columns) {
         players = new ArrayList<>();
         board = new Board(rows, columns);
         random = new Random();
+        gameState = GameState.WAITING;
     }
 
     public synchronized Player addPlayer() {
@@ -55,6 +57,28 @@ public class GameManager {
 
     public Board getBoard() {
         return board;
+    }
+
+    public synchronized GameState getGameState() {
+        return gameState;
+    }
+
+    public synchronized boolean startGame() {
+        if (gameState != GameState.WAITING) {
+            return false;
+        }
+
+        gameState = GameState.RUNNING;
+        return true;
+    }
+
+    public synchronized boolean finishGame() {
+        if (gameState == GameState.FINISHED) {
+            return false;
+        }
+
+        gameState = GameState.FINISHED;
+        return true;
     }
 
     private Tetromino createRandomTetromino() {
@@ -467,6 +491,7 @@ public class GameManager {
         boolean spawned = spawnRandomTetromino(player);
 
         if (!spawned) {
+            finishGame();
             return LockAndSpawnResult.LOCKED_NO_SPAWN;
         }
 

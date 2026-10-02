@@ -49,6 +49,8 @@ public class GameManagerTest {
         test34();
         test35();
         test36();
+        test37();
+        test38();
     }
 
     private static void test1() {
@@ -1736,7 +1738,73 @@ public class GameManagerTest {
             );
         }
 
+        if (gameManager.getGameState() != GameState.FINISHED) {
+            throw new AssertionError(
+                    "La partida debía finalizar al no existir un spawn válido."
+            );
+        }
+
         System.out.println("Bloqueo sin spawn posterior: OK");
+    }
+
+    private static void test37() {
+        System.out.println();
+        System.out.println("=== TEST 37: Estado inicial de la partida ===");
+
+        gameManager = new GameManager(10, 10);
+
+        if (gameManager.getGameState() != GameState.WAITING) {
+            throw new AssertionError(
+                    "La partida debía iniciar en estado WAITING."
+            );
+        }
+
+        System.out.println("Estado inicial WAITING: OK");
+    }
+
+    private static void test38() {
+        System.out.println();
+        System.out.println("=== TEST 38: Transiciones del estado de la partida ===");
+
+        gameManager = new GameManager(10, 10);
+
+        if (!gameManager.startGame()) {
+            throw new AssertionError(
+                    "La partida debía pasar de WAITING a RUNNING."
+            );
+        }
+
+        if (gameManager.getGameState() != GameState.RUNNING) {
+            throw new AssertionError(
+                    "La partida debía quedar en estado RUNNING."
+            );
+        }
+
+        if (gameManager.startGame()) {
+            throw new AssertionError(
+                    "Una partida RUNNING no debía iniciarse nuevamente."
+            );
+        }
+
+        if (!gameManager.finishGame()) {
+            throw new AssertionError(
+                    "La partida debía pasar de RUNNING a FINISHED."
+            );
+        }
+
+        if (gameManager.getGameState() != GameState.FINISHED) {
+            throw new AssertionError(
+                    "La partida debía quedar en estado FINISHED."
+            );
+        }
+
+        if (gameManager.finishGame()) {
+            throw new AssertionError(
+                    "Una partida FINISHED no debía finalizarse nuevamente."
+            );
+        }
+
+        System.out.println("Transiciones WAITING -> RUNNING -> FINISHED: OK");
     }
 
     private static void assertValidSpawn(
