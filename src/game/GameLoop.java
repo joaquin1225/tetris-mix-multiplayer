@@ -100,6 +100,7 @@ public class GameLoop implements Runnable {
                 if (!gameManager.spawnRandomTetromino(player)) {
                     gameManager.finishGame();
                 }
+                gameManager.notifyStateListeners();
                 continue;
             }
 
@@ -107,11 +108,13 @@ public class GameLoop implements Runnable {
                     gameManager.moveDownWithResult(player);
 
             if (moveResult == DownMoveResult.MOVED) {
+                gameManager.notifyStateListeners();
                 continue;
             }
 
             if (moveResult == DownMoveResult.BLOCKED_BY_ACTIVE_PIECE) {
                 player.disableFastDropUntilRelease();
+                gameManager.notifyStateListeners();
                 continue;
             }
 
@@ -119,8 +122,11 @@ public class GameLoop implements Runnable {
                     gameManager.lockAndSpawn(player);
 
             if (result == LockAndSpawnResult.LOCKED_NO_SPAWN) {
+                gameManager.notifyStateListeners();
                 return;
             }
+
+            gameManager.notifyStateListeners();
         }
     }
 
@@ -148,6 +154,7 @@ public class GameLoop implements Runnable {
             }
 
             processPlayerFall(player);
+            gameManager.notifyStateListeners();
             nextFallTimes.put(
                     player,
                     currentTime + getFallInterval(player)

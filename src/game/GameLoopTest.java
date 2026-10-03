@@ -10,6 +10,9 @@ public class GameLoopTest {
         testFastDropState();
         testFastDropFallsFaster();
         testActivePieceCollisionDisablesFastDrop();
+        testStateNotificationAfterAutomaticFall();
+        testStateNotificationsOnLifecycle();
+        testLandedPieceCannotMoveSideways();
     }
 
     private static void testAutomaticFallAndLock() {
@@ -266,5 +269,91 @@ public class GameLoopTest {
         System.out.println(
                 "Colisión con pieza activa y rearme de DOWN: OK"
         );
+    }
+
+    private static void testStateNotificationAfterAutomaticFall() {
+        GameManager gameManager = new GameManager(10, 10);
+        Player player = gameManager.addPlayer();
+        gameManager.startGame();
+
+        final int[] notifications = {0};
+        gameManager.addStateListener(new GameStateListener() {
+            @Override
+            public void onStateChanged(String serializedState) {
+                if (!serializedState.startsWith("STATE|RUNNING|")) {
+                    throw new AssertionError(
+                            "El estado notificado no era RUNNING."
+                    );
+                }
+                notifications[0]++;
+            }
+        });
+
+        int initialRow = player.getCurrentTetromino().getRow();
+        new GameLoop(gameManager, 10).runOneStep();
+
+        if (notifications[0] == 0) {
+            throw new AssertionError(
+                    "La caida automatica debia notificar el estado."
+            );
+        }
+        if (player.getCurrentTetromino().getRow() <= initialRow) {
+            throw new AssertionError(
+                    "La pieza debia avanzar antes de notificar."
+            );
+        }
+
+        System.out.println("Notificacion de estado tras caída: OK");
+    }
+
+    private static void testStateNotificationsOnLifecycle() {
+        GameManager gameManager = new GameManager(8, 8);
+        gameManager.addPlayer();
+        final StringBuilder states = new StringBuilder();
+
+        gameManager.addStateListener(new GameStateListener() {
+            @Override
+            public void onStateChanged(String serializedState) {
+                if (serializedState.startsWith("STATE|RUNNING|")) {
+                    states.append("RUNNING ");
+                } else if (serializedState.startsWith("STATE|FINISHED|")) {
+                    states.append("FINISHED ");
+                }
+            }
+        });
+
+        if (!gameManager.startGame()) {
+            throw new AssertionError("La partida debia iniciar.");
+        }
+        if (!gameManager.finishGame()) {
+            throw new AssertionError("La partida debia finalizar.");
+        }
+        if (!"RUNNING FINISHED ".equals(states.toString())) {
+            throw new AssertionError(
+                    "Las transiciones no fueron notificadas: " + states
+            );
+        }
+
+        System.out.println("Notificaciones de ciclo de vida: OK");
+    }
+
+    private static void testLandedPieceCannotMoveSideways() {
+        GameManager gameManager = new GameManager(4, 4);
+        Player player = gameManager.addPlayer();
+        gameManager.startGame();
+
+        Tetromino piece =
+                new Tetromino(TetrominoType.SMALL_SQUARE, 3, 1);
+        gameManager.setPlayerTetromino(player, piece);
+
+        if (gameManager.moveLeft(player)
+                || gameManager.moveRight(player)
+                || gameManager.rotateClockwise(player)) {
+            throw new AssertionError(
+                    "Una pieza apoyada no debia moverse ni rotar."
+            );
+        }
+
+        System.out.println("Pieza apoyada bloqueada lateralmente: OK");
     }
 }
