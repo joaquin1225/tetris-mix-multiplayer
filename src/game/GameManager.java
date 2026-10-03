@@ -9,13 +9,40 @@ public class GameManager {
     private final List<Player> players;
     private final Board board;
     private final Random random;
+    private final List<GameStateListener> stateListeners;
     private GameState gameState;
 
     public GameManager(int rows, int columns) {
         players = new ArrayList<>();
         board = new Board(rows, columns);
         random = new Random();
+        stateListeners = new ArrayList<>();
         gameState = GameState.WAITING;
+    }
+
+    public synchronized void addStateListener(GameStateListener listener) {
+        if (listener == null || stateListeners.contains(listener)) {
+            return;
+        }
+        stateListeners.add(listener);
+    }
+
+    public synchronized void removeStateListener(GameStateListener listener) {
+        stateListeners.remove(listener);
+    }
+
+    public void notifyStateListeners() {
+        List<GameStateListener> listeners;
+        String serializedState;
+
+        synchronized (this) {
+            listeners = new ArrayList<>(stateListeners);
+            serializedState = serializeState();
+        }
+
+        for (GameStateListener listener : listeners) {
+            listener.onStateChanged(serializedState);
+        }
     }
 
     public synchronized Player addPlayer() {
@@ -73,6 +100,129 @@ public class GameManager {
         return gameState;
     }
 
+    public synchronized GameStateSnapshot createStateSnapshot() {
+        char[][] cells = new char[board.getRows()][board.getColumns()];
+
+        for (int row = 0; row < board.getRows(); row++) {
+            for (int column = 0; column < board.getColumns(); column++) {
+                cells[row][column] = board.getCell(row, column);
+            }
+        }
+
+        List<GameStateSnapshot.PlayerSnapshot> playerSnapshots =
+                new ArrayList<>();
+
+        for (Player player : players) {
+            Tetromino tetromino = player.getCurrentTetromino();
+
+            if (tetromino != null) {
+                boolean[][] shape = tetromino.getShape();
+                int row = tetromino.getRow();
+                int column = tetromino.getColumn();
+
+                for (int localRow = 0; localRow < shape.length; localRow++) {
+                    for (int localColumn = 0;
+                         localColumn < shape[localRow].length;
+                         localColumn++) {
+                        if (!shape[localRow][localColumn]) {
+                            continue;
+                        }
+
+                        int boardRow = row + localRow;
+                        int boardColumn = column + localColumn;
+
+                        if (board.isInside(boardRow, boardColumn)) {
+                            cells[boardRow][boardColumn] =
+                                    player.getId().charAt(0);
+                        }
+                    }
+                }
+
+                playerSnapshots.add(
+                        new GameStateSnapshot.PlayerSnapshot(
+                                player.getId(),
+                                player.getScore(),
+                                tetromino.getType().name(),
+                                row,
+                                column,
+                                tetromino.getRotationIndex()
+                        )
+                );
+            } else {
+                playerSnapshots.add(
+                        new GameStateSnapshot.PlayerSnapshot(
+                                player.getId(),
+                                player.getScore(),
+                                "NONE",
+                                -1,
+                                -1,
+                                -1
+                        )
+                );
+            }
+        }
+
+        List<String> boardRows = new ArrayList<>();
+        for (int row = 0; row < cells.length; row++) {
+            boardRows.add(new String(cells[row]));
+        }
+
+        return new GameStateSnapshot(
+                gameState,
+                board.getRows(),
+                board.getColumns(),
+                boardRows,
+                playerSnapshots
+        );
+    }
+
+    public synchronized String serializeState() {
+        GameStateSnapshot snapshot = createStateSnapshot();
+        StringBuilder message = new StringBuilder("STATE|")
+                .append(snapshot.getGameState().name())
+                .append("|")
+                .append(snapshot.getRows())
+                .append("|")
+                .append(snapshot.getColumns())
+                .append("|");
+
+        for (int index = 0;
+             index < snapshot.getBoardRows().size();
+             index++) {
+            if (index > 0) {
+                message.append(",");
+            }
+            message.append(snapshot.getBoardRows().get(index));
+        }
+
+        message.append("|");
+
+        for (int index = 0;
+             index < snapshot.getPlayers().size();
+             index++) {
+            if (index > 0) {
+                message.append(";");
+            }
+
+            GameStateSnapshot.PlayerSnapshot player =
+                    snapshot.getPlayers().get(index);
+
+            message.append(player.getId())
+                    .append(",")
+                    .append(player.getScore())
+                    .append(",")
+                    .append(player.getPieceType())
+                    .append(",")
+                    .append(player.getRow())
+                    .append(",")
+                    .append(player.getColumn())
+                    .append(",")
+                    .append(player.getRotation());
+        }
+
+        return message.toString();
+    }
+
     public synchronized boolean startGame() {
         if (gameState != GameState.WAITING) {
             return false;
@@ -87,10 +237,12 @@ public class GameManager {
         for (Player player : players) {
             if (player.getCurrentTetromino() == null && !spawnRandomTetromino(player)) {
                 gameState = GameState.FINISHED;
+                notifyStateListeners();
                 return false;
             }
         }
 
+        notifyStateListeners();
         return true;
     }
 
@@ -100,6 +252,7 @@ public class GameManager {
         }
 
         gameState = GameState.FINISHED;
+        notifyStateListeners();
         return true;
     }
 
@@ -197,6 +350,10 @@ public class GameManager {
             return false;
         }
 
+        if (isSupportedByFixedObstacle(tetromino)) {
+            return false;
+        }
+
         int newColumn = tetromino.getColumn() - 1;
 
         if (!canPlaceTetromino(
@@ -222,6 +379,10 @@ public class GameManager {
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
+            return false;
+        }
+
+        if (isSupportedByFixedObstacle(tetromino)) {
             return false;
         }
 
@@ -315,6 +476,10 @@ public class GameManager {
             return false;
         }
 
+        if (isSupportedByFixedObstacle(tetromino)) {
+            return false;
+        }
+
         int currentRotation = tetromino.getRotationIndex();
         int newRotation = (currentRotation + 1) % 4;
         boolean[][] newShape = tetromino.getShape(newRotation);
@@ -345,6 +510,10 @@ public class GameManager {
             return false;
         }
 
+        if (isSupportedByFixedObstacle(tetromino)) {
+            return false;
+        }
+
         int currentRotation = tetromino.getRotationIndex();
         int newRotation = (currentRotation + 3) % 4; // Rotacion inversa
         boolean[][] newShape = tetromino.getShape(newRotation);
@@ -362,6 +531,32 @@ public class GameManager {
         tetromino.setRotationIndex(newRotation);
 
         return true;
+    }
+
+    private boolean isSupportedByFixedObstacle(Tetromino tetromino) {
+        boolean[][] shape = tetromino.getShape();
+        int targetRow = tetromino.getRow() + 1;
+        int targetColumn = tetromino.getColumn();
+
+        for (int localRow = 0; localRow < shape.length; localRow++) {
+            for (int localColumn = 0;
+                 localColumn < shape[localRow].length;
+                 localColumn++) {
+                if (!shape[localRow][localColumn]) {
+                    continue;
+                }
+
+                int boardRow = targetRow + localRow;
+                int boardColumn = targetColumn + localColumn;
+
+                if (!board.isInside(boardRow, boardColumn)
+                        || !board.isEmpty(boardRow, boardColumn)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public synchronized boolean lockPiece(Player player) {

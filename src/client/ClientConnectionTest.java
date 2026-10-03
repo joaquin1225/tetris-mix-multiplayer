@@ -76,8 +76,9 @@ public class ClientConnectionTest {
         try {
             connection.connect();
 
-            waitForMessages(monitor, messages, 2);
+            waitForMessages(monitor, messages, 3);
             assertNoErrors(errors);
+            waitForStateMessage(messages);
 
             connection.sendCommand("LEFT");
             waitForMessage(monitor, messages, "ACTION_REJECTED LEFT");
@@ -151,5 +152,16 @@ public class ClientConnectionTest {
                     "Se recibieron errores de conexion: " + errors
             );
         }
+    }
+
+    private static void waitForStateMessage(List<String> messages) {
+        for (String message : messages) {
+            if (message.startsWith("STATE|")) {
+                GameStateMessage.parse(message);
+                return;
+            }
+        }
+
+        throw new AssertionError("No se recibio el estado inicial.");
     }
 }
