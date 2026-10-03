@@ -251,31 +251,57 @@ public class GameManager {
     }
 
     public synchronized boolean moveDown(Player player) {
+        return moveDownWithResult(player) == DownMoveResult.MOVED;
+    }
+
+    synchronized DownMoveResult moveDownWithResult(Player player) {
         if (gameState != GameState.RUNNING) {
-            return false;
+            return DownMoveResult.LANDED;
         }
 
         Tetromino tetromino = player.getCurrentTetromino();
 
         if (tetromino == null) {
-            return false;
+            return DownMoveResult.LANDED;
         }
 
         int newRow = tetromino.getRow() + 1;
+        boolean[][] shape = tetromino.getShape();
 
-        if (!canPlaceTetromino(
-                tetromino,
-                newRow,
-                tetromino.getColumn(),
-                tetromino.getShape(),
-                player
-        )) {
-            return false;
+        for (int localRow = 0; localRow < shape.length; localRow++) {
+            for (int localColumn = 0;
+                 localColumn < shape[localRow].length;
+                 localColumn++) {
+
+                if (!shape[localRow][localColumn]) {
+                    continue;
+                }
+
+                int boardRow = newRow + localRow;
+                int boardColumn =
+                        tetromino.getColumn() + localColumn;
+
+                if (!board.isInside(boardRow, boardColumn)) {
+                    return DownMoveResult.LANDED;
+                }
+
+                if (!board.isEmpty(boardRow, boardColumn)) {
+                    return DownMoveResult.LANDED;
+                }
+
+                if (isOccupiedByAnotherPlayer(
+                        boardRow,
+                        boardColumn,
+                        player
+                )) {
+                    return DownMoveResult.BLOCKED_BY_ACTIVE_PIECE;
+                }
+            }
         }
 
         tetromino.setPosition(newRow, tetromino.getColumn());
 
-        return true;
+        return DownMoveResult.MOVED;
     }
 
     public synchronized boolean rotateClockwise(Player player) {
