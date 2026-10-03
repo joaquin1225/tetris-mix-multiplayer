@@ -52,18 +52,20 @@ public class GameManagerTest {
         test37();
         test38();
         test39();
+        test40();
     }
 
     private static void test1() {
         gameManager =
                 new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA =
                 gameManager.addPlayer();
 
         playerB =
                 gameManager.addPlayer();
+
+        gameManager.startGame();
 
         pieceA =
                 new Tetromino(
@@ -223,10 +225,10 @@ public class GameManagerTest {
 
         GameManager gameManager6 =
                 new GameManager(10, 10);
-        gameManager6.startGame();
 
         Player player6 =
                 gameManager6.addPlayer();
+        gameManager6.startGame();
 
         Tetromino fallingPiece =
                 new Tetromino(
@@ -265,10 +267,10 @@ public class GameManagerTest {
 
         GameManager gameManager7 =
                 new GameManager(10, 10);
-        gameManager7.startGame();
 
         Player player7 =
                 gameManager7.addPlayer();
+        gameManager7.startGame();
 
         Tetromino bottomPiece =
                 new Tetromino(
@@ -306,9 +308,9 @@ public class GameManagerTest {
         System.out.println("=== TEST 8: Rotación horaria ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino =
                 new Tetromino(
@@ -346,9 +348,9 @@ public class GameManagerTest {
         System.out.println("=== TEST 9: Rotación antihoraria ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino =
                 new Tetromino(
@@ -399,10 +401,10 @@ public class GameManagerTest {
         System.out.println("=== TEST 10: Rotación bloqueada por otro jugador ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
         playerB = gameManager.addPlayer();
+        gameManager.startGame();
 
         Tetromino tetrominoA =
                 new Tetromino(
@@ -452,9 +454,9 @@ public class GameManagerTest {
         System.out.println("=== TEST 11: Rotación bloqueada por borde ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino =
                 new Tetromino(
@@ -492,9 +494,9 @@ public class GameManagerTest {
         System.out.println("=== TEST 12: Fijar pieza ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino =
                 new Tetromino(
@@ -537,9 +539,9 @@ public class GameManagerTest {
         System.out.println("=== TEST 13: Solo celdas true se fijan ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino =
                 new Tetromino(
@@ -716,8 +718,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 18: Spawn aleatorio válido ===");
 
         GameManager spawnManager = new GameManager(10, 10);
-        spawnManager.startGame();
         Player spawnPlayer = spawnManager.addPlayer();
+        spawnManager.startGame();
 
         boolean spawned =
                 spawnManager.spawnRandomTetromino(spawnPlayer);
@@ -744,8 +746,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 19: Spawn en espacio restringido ===");
 
         GameManager restrictedManager = new GameManager(4, 4);
-        restrictedManager.startGame();
         Player restrictedPlayer = restrictedManager.addPlayer();
+        restrictedManager.startGame();
 
         Board restrictedBoard = restrictedManager.getBoard();
 
@@ -795,8 +797,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 20: Tablero completamente ocupado ===");
 
         GameManager fullManager = new GameManager(4, 4);
-        fullManager.startGame();
         Player fullPlayer = fullManager.addPlayer();
+        fullManager.startGame();
 
         Board fullBoard = fullManager.getBoard();
 
@@ -832,8 +834,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 21: Fila superior bloqueada ===");
 
         GameManager topBlockedManager = new GameManager(4, 4);
-        topBlockedManager.startGame();
         Player topBlockedPlayer = topBlockedManager.addPlayer();
+        topBlockedManager.startGame();
 
         Board topBlockedBoard = topBlockedManager.getBoard();
 
@@ -867,8 +869,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 22: Jugador con pieza activa ===");
 
         GameManager activeManager = new GameManager(10, 10);
-        activeManager.startGame();
         Player activePlayer = activeManager.addPlayer();
+        activeManager.startGame();
 
         boolean firstSpawn =
                 activeManager.spawnRandomTetromino(activePlayer);
@@ -905,8 +907,8 @@ public class GameManagerTest {
 
         for (int i = 0; i < 100; i++) {
             GameManager repeatedManager = new GameManager(10, 10);
-            repeatedManager.startGame();
             Player repeatedPlayer = repeatedManager.addPlayer();
+            repeatedManager.startGame();
 
             boolean repeatedSpawn =
                     repeatedManager.spawnRandomTetromino(repeatedPlayer);
@@ -929,13 +931,13 @@ public class GameManagerTest {
 
         GameManager multiSpawnManager =
                 new GameManager(10, 10);
-        multiSpawnManager.startGame();
 
         Player playerC =
                 multiSpawnManager.addPlayer();
 
         Player playerD =
                 multiSpawnManager.addPlayer();
+        multiSpawnManager.startGame();
 
         Tetromino pieceC =
                 new Tetromino(
@@ -990,8 +992,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 25: Bloqueo sin líneas ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino = new Tetromino(
                 TetrominoType.SMALL_SQUARE,
@@ -1036,8 +1038,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 26: Una línea ===");
 
         gameManager = new GameManager(4, 4);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1096,8 +1098,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 27: Dos líneas ===");
 
         gameManager = new GameManager(4, 4);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1160,8 +1162,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 28: Tres líneas ===");
 
         gameManager = new GameManager(4, 4);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1226,10 +1228,10 @@ public class GameManagerTest {
         System.out.println("=== TEST 29: Limpiar filas no mueve piezas activas ===");
 
         gameManager = new GameManager(4, 4);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
         playerB = gameManager.addPlayer();
+        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1353,10 +1355,10 @@ public class GameManagerTest {
         System.out.println("=== TEST 30: Puntos para el jugador correcto ===");
 
         gameManager = new GameManager(4, 4);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
         playerB = gameManager.addPlayer();
+        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1437,10 +1439,10 @@ public class GameManagerTest {
         );
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
 
         playerA = gameManager.addPlayer();
         playerB = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino = new Tetromino(
                 TetrominoType.SMALL_SQUARE,
@@ -1511,8 +1513,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 32: Lock + Spawn de nueva pieza ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         // Pieza inicial que será bloqueada.
         pieceA = new Tetromino(TetrominoType.SMALL_SQUARE, 8, 4);
@@ -1555,8 +1557,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 33: Bloqueo y spawn de nueva pieza ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         tetromino = new Tetromino(
                 TetrominoType.SMALL_SQUARE,
@@ -1609,8 +1611,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 34: Ciclo sin líneas ===");
 
         gameManager = new GameManager(10, 10);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
 
         pieceA = new Tetromino(
                 TetrominoType.SMALL_SQUARE,
@@ -1656,8 +1658,8 @@ public class GameManagerTest {
         System.out.println("=== TEST 35: Ciclo con una línea ===");
 
         gameManager = new GameManager(4, 4);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
+        gameManager.startGame();
         board = gameManager.getBoard();
 
         for (int column = 1; column < board.getColumns(); column++) {
@@ -1710,12 +1712,12 @@ public class GameManagerTest {
         System.out.println("=== TEST 36: Bloqueo sin spawn posterior ===");
 
         gameManager = new GameManager(2, 4);
-        gameManager.startGame();
         playerA = gameManager.addPlayer();
         playerB = gameManager.addPlayer();
         Player playerC = gameManager.addPlayer();
         Player playerD = gameManager.addPlayer();
         Player playerE = gameManager.addPlayer();
+        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1895,6 +1897,53 @@ public class GameManagerTest {
         }
 
         System.out.println("Protección WAITING/FINISHED: OK");
+    }
+
+    private static void test40() {
+        System.out.println();
+        System.out.println("=== TEST 40: Admisión de jugadores por estado ===");
+
+        gameManager = new GameManager(10, 10);
+        gameManager.addPlayer();
+        gameManager.startGame();
+
+        boolean rejectedWhileRunning = false;
+
+        try {
+            gameManager.addPlayer();
+        } catch (IllegalStateException exception) {
+            rejectedWhileRunning = true;
+        }
+
+        if (!rejectedWhileRunning) {
+            throw new AssertionError(
+                    "No se debía admitir un jugador durante RUNNING."
+            );
+        }
+
+        gameManager.finishGame();
+
+        boolean rejectedWhenFinished = false;
+
+        try {
+            gameManager.addPlayer();
+        } catch (IllegalStateException exception) {
+            rejectedWhenFinished = true;
+        }
+
+        if (!rejectedWhenFinished) {
+            throw new AssertionError(
+                    "No se debía admitir un jugador durante FINISHED."
+            );
+        }
+
+        if (gameManager.getPlayerCount() != 1) {
+            throw new AssertionError(
+                    "Solo debía permanecer el jugador admitido en WAITING."
+            );
+        }
+
+        System.out.println("Admisión cerrada en RUNNING y FINISHED: OK");
     }
 
     private static void assertValidSpawn(

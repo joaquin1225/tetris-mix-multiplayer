@@ -19,6 +19,12 @@ public class GameManager {
     }
 
     public synchronized Player addPlayer() {
+        if (gameState != GameState.WAITING) {
+            throw new IllegalStateException(
+                    "No se pueden agregar jugadores cuando la partida no está en WAITING."
+            );
+        }
+
         String playerId = generatePlayerId();
         Player player = new Player(playerId);
         players.add(player);
@@ -53,6 +59,10 @@ public class GameManager {
 
     public synchronized int getPlayerCount() {
         return players.size();
+    }
+
+    public synchronized List<Player> getPlayersSnapshot() {
+        return new ArrayList<>(players);
     }
 
     public Board getBoard() {
