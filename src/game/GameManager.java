@@ -78,7 +78,19 @@ public class GameManager {
             return false;
         }
 
+        if (players.isEmpty()) {
+            return false;
+        }
+
         gameState = GameState.RUNNING;
+
+        for (Player player : players) {
+            if (player.getCurrentTetromino() == null && !spawnRandomTetromino(player)) {
+                gameState = GameState.FINISHED;
+                return false;
+            }
+        }
+
         return true;
     }
 

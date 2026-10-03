@@ -42,6 +42,8 @@ public class ClientHandler implements Runnable {
             System.out.println("Player " + player.getId() + " desconectado.");
         } catch (IOException e) {
             System.err.println("Error en la comunicacion con el player " + (player != null ? player.getId() : "desconocido") + ": " + e.getMessage());
+        } catch (IllegalStateException e) {
+            System.err.println("Conexion rechazada: " + e.getMessage());
         } finally {
             if (player != null) {
                 gameManager.removePlayer(player.getId());

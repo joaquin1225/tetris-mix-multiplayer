@@ -53,6 +53,8 @@ public class GameManagerTest {
         test38();
         test39();
         test40();
+        test41();
+        test42();
     }
 
     private static void test1() {
@@ -720,6 +722,7 @@ public class GameManagerTest {
         GameManager spawnManager = new GameManager(10, 10);
         Player spawnPlayer = spawnManager.addPlayer();
         spawnManager.startGame();
+        spawnPlayer.setCurrentTetromino(null);
 
         boolean spawned =
                 spawnManager.spawnRandomTetromino(spawnPlayer);
@@ -748,6 +751,7 @@ public class GameManagerTest {
         GameManager restrictedManager = new GameManager(4, 4);
         Player restrictedPlayer = restrictedManager.addPlayer();
         restrictedManager.startGame();
+        restrictedPlayer.setCurrentTetromino(null);
 
         Board restrictedBoard = restrictedManager.getBoard();
 
@@ -799,6 +803,7 @@ public class GameManagerTest {
         GameManager fullManager = new GameManager(4, 4);
         Player fullPlayer = fullManager.addPlayer();
         fullManager.startGame();
+        fullPlayer.setCurrentTetromino(null);
 
         Board fullBoard = fullManager.getBoard();
 
@@ -836,6 +841,7 @@ public class GameManagerTest {
         GameManager topBlockedManager = new GameManager(4, 4);
         Player topBlockedPlayer = topBlockedManager.addPlayer();
         topBlockedManager.startGame();
+        topBlockedPlayer.setCurrentTetromino(null);
 
         Board topBlockedBoard = topBlockedManager.getBoard();
 
@@ -871,6 +877,7 @@ public class GameManagerTest {
         GameManager activeManager = new GameManager(10, 10);
         Player activePlayer = activeManager.addPlayer();
         activeManager.startGame();
+        activePlayer.setCurrentTetromino(null);
 
         boolean firstSpawn =
                 activeManager.spawnRandomTetromino(activePlayer);
@@ -909,6 +916,7 @@ public class GameManagerTest {
             GameManager repeatedManager = new GameManager(10, 10);
             Player repeatedPlayer = repeatedManager.addPlayer();
             repeatedManager.startGame();
+            repeatedPlayer.setCurrentTetromino(null);
 
             boolean repeatedSpawn =
                     repeatedManager.spawnRandomTetromino(repeatedPlayer);
@@ -938,6 +946,7 @@ public class GameManagerTest {
         Player playerD =
                 multiSpawnManager.addPlayer();
         multiSpawnManager.startGame();
+        playerD.setCurrentTetromino(null);
 
         Tetromino pieceC =
                 new Tetromino(
@@ -1717,7 +1726,6 @@ public class GameManagerTest {
         Player playerC = gameManager.addPlayer();
         Player playerD = gameManager.addPlayer();
         Player playerE = gameManager.addPlayer();
-        gameManager.startGame();
 
         board = gameManager.getBoard();
 
@@ -1745,6 +1753,7 @@ public class GameManagerTest {
         );
 
         gameManager.setPlayerTetromino(playerA, pieceA);
+        gameManager.startGame();
 
         lockAndSpawnResult = gameManager.lockAndSpawn(playerA);
 
@@ -1802,6 +1811,7 @@ public class GameManagerTest {
         System.out.println("=== TEST 38: Transiciones del estado de la partida ===");
 
         gameManager = new GameManager(10, 10);
+        playerA = gameManager.addPlayer();
 
         if (!gameManager.startGame()) {
             throw new AssertionError(
@@ -1812,6 +1822,12 @@ public class GameManagerTest {
         if (gameManager.getGameState() != GameState.RUNNING) {
             throw new AssertionError(
                     "La partida debía quedar en estado RUNNING."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() == null) {
+            throw new AssertionError(
+                    "El jugador debía recibir una pieza al iniciar."
             );
         }
 
@@ -1944,6 +1960,60 @@ public class GameManagerTest {
         }
 
         System.out.println("Admisión cerrada en RUNNING y FINISHED: OK");
+    }
+
+    private static void test41() {
+        System.out.println();
+        System.out.println("=== TEST 41: Spawn inicial para todos los jugadores ===");
+
+        gameManager = new GameManager(10, 10);
+        playerA = gameManager.addPlayer();
+        playerB = gameManager.addPlayer();
+
+        if (!gameManager.startGame()) {
+            throw new AssertionError(
+                    "La partida debía iniciar con jugadores válidos."
+            );
+        }
+
+        if (gameManager.getGameState() != GameState.RUNNING) {
+            throw new AssertionError(
+                    "La partida debía quedar en RUNNING."
+            );
+        }
+
+        if (playerA.getCurrentTetromino() == null
+                || playerB.getCurrentTetromino() == null) {
+            throw new AssertionError(
+                    "Todos los jugadores debían recibir una pieza inicial."
+            );
+        }
+
+        assertValidSpawn(gameManager, playerA);
+        assertValidSpawn(gameManager, playerB);
+
+        System.out.println("Spawn inicial para todos los jugadores: OK");
+    }
+
+    private static void test42() {
+        System.out.println();
+        System.out.println("=== TEST 42: Inicio sin jugadores ===");
+
+        gameManager = new GameManager(10, 10);
+
+        if (gameManager.startGame()) {
+            throw new AssertionError(
+                    "La partida no debía iniciar sin jugadores."
+            );
+        }
+
+        if (gameManager.getGameState() != GameState.WAITING) {
+            throw new AssertionError(
+                    "La partida debía permanecer en WAITING."
+            );
+        }
+
+        System.out.println("Inicio rechazado sin jugadores: OK");
     }
 
     private static void assertValidSpawn(
