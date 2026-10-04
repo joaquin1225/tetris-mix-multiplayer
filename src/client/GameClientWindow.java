@@ -389,48 +389,48 @@ public class GameClientWindow extends JFrame {
         scoresArea.setText(text.toString());
     }
 
-    private void updateConnectionDimensions(GameStateMessage state) {
+        private void updateConnectionDimensions(GameStateMessage state) {
         dimensionsLabel.setText(
                 "Tablero: " + state.getRows() + " x " + state.getColumns()
         );
 
-        if (configuredRows == state.getRows()
-                && configuredColumns == state.getColumns()) {
-            return;
-        }
+        if (configuredRows != state.getRows()
+                || configuredColumns != state.getColumns()) {
 
-        configuredRows = state.getRows();
-        configuredColumns = state.getColumns();
+            configuredRows = state.getRows();
+            configuredColumns = state.getColumns();
 
-        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        int maxBoardWidth = (int) (screen.width * 0.65);
-        int maxBoardHeight = (int) (screen.height * 0.72);
-        int cellSize = Math.min(
-                maxBoardWidth / Math.max(1, state.getColumns()),
-                maxBoardHeight / Math.max(1, state.getRows())
-        );
-        cellSize = Math.max(10, Math.min(28, cellSize));
-        boardPanel.setCellSize(cellSize);
-        boardPanel.updateState(state);
-
-        Dimension contentSize = getContentPane().getPreferredSize();
-        int windowWidth = contentSize.width
-                + getInsets().left
-                + getInsets().right;
-        int windowHeight = contentSize.height
-                + getInsets().top
-                + getInsets().bottom;
-        int maxWindowWidth = screen.width - 40;
-        int maxWindowHeight = screen.height - 80;
-
-        if (!initialSizeApplied) {
-            setSize(
-                    Math.max(700, Math.min(windowWidth, maxWindowWidth)),
-                    Math.max(450, Math.min(windowHeight, maxWindowHeight))
+            Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+            int maxBoardWidth = (int) (screen.width * 0.65);
+            int maxBoardHeight = (int) (screen.height * 0.72);
+            int cellSize = Math.min(
+                    maxBoardWidth / Math.max(1, state.getColumns()),
+                    maxBoardHeight / Math.max(1, state.getRows())
             );
-            setLocationRelativeTo(null);
-            initialSizeApplied = true;
+            cellSize = Math.max(10, Math.min(28, cellSize));
+            boardPanel.setCellSize(cellSize);
+
+            Dimension contentSize = getContentPane().getPreferredSize();
+            int windowWidth = contentSize.width
+                    + getInsets().left
+                    + getInsets().right;
+            int windowHeight = contentSize.height
+                    + getInsets().top
+                    + getInsets().bottom;
+            int maxWindowWidth = screen.width - 40;
+            int maxWindowHeight = screen.height - 80;
+
+            if (!initialSizeApplied) {
+                setSize(
+                        Math.max(700, Math.min(windowWidth, maxWindowWidth)),
+                        Math.max(450, Math.min(windowHeight, maxWindowHeight))
+                );
+                setLocationRelativeTo(null);
+                initialSizeApplied = true;
+            }
         }
+
+        boardPanel.updateState(state);
     }
 
     public static void main(String[] args) {
